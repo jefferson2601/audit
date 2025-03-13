@@ -103,7 +103,11 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👥 Autores
 
+<<<<<<< HEAD
 - Jeferson Lopes - Desenvolvimento inicial
+=======
+- Jeferson Lopes Araujo - Desenvolvimento inicial
+>>>>>>> 80f44c4e33df24a5b5226f8dd5a0de5c5a2ea8e8
 
 ## 🙏 Agradecimentos
 
