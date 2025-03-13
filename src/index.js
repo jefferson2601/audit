@@ -5,7 +5,7 @@ const statusMessage = document.getElementById('statusMessage');
 const resultsContainer = document.getElementById('resultsContainer');
 
 // Configuração da API
-const API_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://smart-contract-auditor-backend.onrender.com';
 
 // Variáveis para controle de tempo
 let startTime;
@@ -296,27 +296,23 @@ function showStatus(message, type = 'info') {
 // Função para obter informações detalhadas do contrato
 async function fetchContractDetails(address) {
     try {
-        console.log('Buscando detalhes do contrato:', address);
-        const response = await fetch(`${API_URL}/contract-details`, {
+        const response = await fetch(`${API_BASE_URL}/contract-details`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ address }),
+            body: JSON.stringify({ address })
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => null);
-            throw new Error(errorData?.error || `HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Detalhes do contrato recebidos:', data);
         return data;
     } catch (error) {
-        console.error('Erro ao buscar detalhes do contrato:', error);
-        return null;
+        console.error('Erro ao buscar detalhes:', error);
+        throw error;
     }
 }
 
@@ -365,25 +361,15 @@ function setLoading(isLoading) {
 // Função para analisar contrato
 async function analyzeContract(address) {
     try {
-        setLoading(true);
-        showStatus('Iniciando análise...', 'info');
-        startTimer();
-        clearResults();
-
-        // Buscar detalhes do contrato
-        const contractDetails = await fetchContractDetails(address);
-
-        // Adicionar informações do contrato
-        const contractInfoCard = createContractInfoCard(address, contractDetails);
-        resultsContainer.appendChild(contractInfoCard);
-
-        // Fazer requisição para o servidor
-        const response = await fetch(`${API_URL}/analyze`, {
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ sourceCode: `// Código fonte do contrato ${address}` }),
+            body: JSON.stringify({ 
+                address,
+                sourceCode: getContractSourceCode(address)
+            })
         });
 
         if (!response.ok) {
@@ -391,37 +377,10 @@ async function analyzeContract(address) {
         }
 
         const data = await response.json();
-        
-        if (!data.success) {
-            throw new Error(data.error || 'Erro na análise do contrato');
-        }
-        
-        // Exibir resultados
-        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
-            const vulnerabilitiesHeader = document.createElement('h2');
-            vulnerabilitiesHeader.textContent = 'Vulnerabilidades Encontradas';
-            resultsContainer.appendChild(vulnerabilitiesHeader);
-
-            data.vulnerabilities.forEach(vulnerability => {
-                const card = createVulnerabilityCard(vulnerability);
-                resultsContainer.appendChild(card);
-            });
-            showStatus(`Análise concluída. ${data.vulnerabilities.length} vulnerabilidades encontradas.`, 'success');
-        } else {
-            const noVulnsCard = document.createElement('div');
-            noVulnsCard.className = 'vulnerability-card low';
-            noVulnsCard.innerHTML = `
-                <h3>Nenhuma Vulnerabilidade Encontrada</h3>
-                <p class="description">O contrato parece estar seguro em relação às vulnerabilidades mais comuns.</p>
-            `;
-            resultsContainer.appendChild(noVulnsCard);
-            showStatus('Nenhuma vulnerabilidade encontrada.', 'success');
-        }
+        return data;
     } catch (error) {
-        console.error('Erro:', error);
-        showStatus(`Erro ao analisar contrato: ${error.message}`, 'error');
-    } finally {
-        setLoading(false);
+        console.error('Erro na análise:', error);
+        throw error;
     }
 }
 
