@@ -1,15 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const port = 3000;
 
-// Configuração do CORS para permitir requisições do frontend
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Middleware para logging
@@ -164,7 +158,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+// Iniciar servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em http://localhost:${PORT}`);
     console.log('Use Ctrl+C para encerrar o servidor');
 }); 

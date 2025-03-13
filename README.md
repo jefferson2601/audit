@@ -73,6 +73,26 @@ npm start
 - Integer Overflow/Underflow
 - Unchecked External Calls
 
+## 🚀 Deploy
+
+### Backend (Render)
+
+1. Crie uma conta no [Render](https://render.com)
+2. Conecte seu repositório GitHub
+3. Crie um novo Web Service
+4. Selecione o repositório
+5. Configure as seguintes variáveis:
+   - Build Command: `npm install`
+   - Start Command: `node server.js`
+6. Clique em "Create Web Service"
+
+### Frontend (GitHub Pages)
+
+1. Configure o GitHub Actions no seu repositório
+2. O workflow já está configurado para fazer o deploy automaticamente
+3. Acesse as configurações do repositório em GitHub > Settings > Pages
+4. Selecione a branch `gh-pages` como fonte
+
 ## 🤝 Contribuindo
 
 Contribuições são sempre bem-vindas! Por favor, leia o guia de contribuição antes de submeter um pull request.
@@ -83,7 +103,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👥 Autores
 
-- Seu Nome - Desenvolvimento inicial
+- Jeferson Lopes - Desenvolvimento inicial
 
 ## 🙏 Agradecimentos
 
