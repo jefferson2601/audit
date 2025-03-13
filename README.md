@@ -83,7 +83,7 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 👥 Autores
 
-- Seu Nome - Desenvolvimento inicial
+- Jeferson Lopes Araujo - Desenvolvimento inicial
 
 ## 🙏 Agradecimentos
 
