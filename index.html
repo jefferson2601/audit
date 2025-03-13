@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditor de Smart Contracts</title>
+    <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Auditor de Smart Contracts</h1>
+        </header>
+
+        <section class="input-section">
+            <div class="input-group">
+                <input type="text" id="contractInput" placeholder="Digite o endereço do contrato (0x...)" />
+                <button id="analyzeButton">Analisar</button>
+            </div>
+        </section>
+
+        <section class="examples-section">
+            <h2>Contratos de Exemplo</h2>
+            <div class="example-buttons">
+                <button class="example-button" data-address="0xdAC17F958D2ee523a2206206994597C13D831ec7">USDT (Tether)</button>
+                <button class="example-button" data-address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599">WBTC (Wrapped Bitcoin)</button>
+                <button class="example-button" data-address="0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984">UNI (Uniswap)</button>
+            </div>
+        </section>
+
+        <section class="status-section">
+            <div id="statusMessage" class="status-message"></div>
+        </section>
+
+        <section class="results-section">
+            <div id="resultsContainer" class="results-container"></div>
+        </section>
+    </div>
+
+    <script src="./src/index.js"></script>
+</body>
+</html> 

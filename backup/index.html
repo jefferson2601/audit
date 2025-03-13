@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditor de Smart Contracts</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Auditor de Smart Contracts</h1>
+            <p>Analise a segurança de seus contratos inteligentes</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <div class="input-group">
+                    <label for="contractAddress">Endereço do Contrato:</label>
+                    <input 
+                        type="text" 
+                        id="contractAddress" 
+                        placeholder="0x..."
+                        class="contract-input"
+                    >
+                </div>
+                <button id="analyzeButton" class="analyze-button">
+                    Analisar Contrato
+                </button>
+            </section>
+
+            <section class="status-section">
+                <div id="statusMessage" class="status-message"></div>
+            </section>
+
+            <section class="results-section">
+                <h2>Resultados da Análise</h2>
+                <div id="resultsContainer" class="results-container">
+                    <!-- Os resultados serão inseridos aqui via JavaScript -->
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
