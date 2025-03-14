@@ -299,8 +299,11 @@ async function fetchContractDetails(address) {
         const response = await fetch(`${API_BASE_URL}/contract-details`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
+            mode: 'cors',
+            credentials: 'omit',
             body: JSON.stringify({ address })
         });
 
@@ -377,8 +380,11 @@ async function analyzeContract(address) {
         const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
+            mode: 'cors',
+            credentials: 'omit',
             body: JSON.stringify({ 
                 address,
                 sourceCode: `// Código fonte do contrato ${address}`
