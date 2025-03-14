@@ -17,6 +17,36 @@ const contractDatabase = {
     }
 };
 
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const ETHERSCAN_API_URL = 'https://api.etherscan.io/api';
+
+async function getContractSourceCode(address) {
+    try {
+        const response = await fetch(`${ETHERSCAN_API_URL}?module=contract&action=getsourcecode&address=${address}&apikey=${ETHERSCAN_API_KEY}`);
+        const data = await response.json();
+        
+        if (data.status === '1' && data.result && data.result[0]) {
+            return {
+                sourceCode: data.result[0].SourceCode,
+                compilerVersion: data.result[0].CompilerVersion,
+                optimizationUsed: data.result[0].OptimizationUsed,
+                runs: data.result[0].Runs,
+                constructorArguments: data.result[0].ConstructorArguments,
+                contractName: data.result[0].ContractName,
+                proxy: data.result[0].Proxy === '1',
+                implementation: data.result[0].Implementation,
+                library: data.result[0].Library,
+                licenseType: data.result[0].LicenseType,
+                timestamp: data.result[0].TimeStamp
+            };
+        }
+        throw new Error('Não foi possível obter o código fonte do contrato');
+    } catch (error) {
+        console.error('Erro ao buscar código fonte:', error);
+        throw error;
+    }
+}
+
 exports.handler = async function(event, context) {
     // Configurar CORS
     const headers = {
@@ -46,23 +76,13 @@ exports.handler = async function(event, context) {
             };
         }
 
-        // Simular busca de detalhes
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Retornar dados simulados ou dados do banco de dados
-        const details = contractDatabase[address.toLowerCase()] || {
-            name: 'Contrato Desconhecido',
-            compilerVersion: 'Desconhecida',
-            network: 'Desconhecida',
-            creationDate: 'Desconhecida',
-            balance: '0',
-            transactionCount: '0'
-        };
+        // Buscar código fonte real do contrato
+        const contractDetails = await getContractSourceCode(address);
 
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(details)
+            body: JSON.stringify(contractDetails)
         };
     } catch (error) {
         return {
