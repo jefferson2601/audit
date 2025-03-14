@@ -302,8 +302,7 @@ async function fetchContractDetails(address) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            mode: 'cors',
-            credentials: 'omit',
+            credentials: 'include',
             body: JSON.stringify({ address })
         });
 
@@ -383,8 +382,7 @@ async function analyzeContract(address) {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            mode: 'cors',
-            credentials: 'omit',
+            credentials: 'include',
             body: JSON.stringify({ 
                 address,
                 sourceCode: `// Código fonte do contrato ${address}`
