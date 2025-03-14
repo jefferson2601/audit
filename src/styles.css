@@ -47,18 +47,21 @@ header p {
     justify-content: center;
 }
 
-input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #110101;
+#contractInput {
+    width: 80%;
+    max-width: 600px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    border: 2px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
+    transition: border-color 0.3s ease;
 }
 
-input[type="text"]:focus {
+#contractInput:focus {
+    border-color: #4CAF50;
     outline: none;
-    border-color: #150c4b;
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
 
 button {
@@ -215,29 +218,30 @@ button:disabled {
 }
 
 .vulnerability-card {
-    padding: 15px;
-    border-radius: 4px;
-    border-left: 4px solid #ddd;
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: transform 0.2s ease;
 }
 
 .vulnerability-card:hover {
-    transform: translateX(5px);
+    transform: translateY(-2px);
 }
 
 .vulnerability-card.high {
-    border-left-color: #e74c3c;
-    background: none;
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
 }
 
 .vulnerability-card.medium {
-    border-left-color: #f1c40f;
-    background: none;
+    background-color: #fff3e0;
+    border-left: 4px solid #ff9800;
 }
 
 .vulnerability-card.low {
-    border-left-color: #2ecc71;
-    background-color: #f0fff4;
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
 }
 
 .vulnerability-card h3 {
@@ -293,19 +297,18 @@ button:disabled {
 }
 
 .details-button {
-    background-color: #3498db;
+    background-color: #4CAF50;
     color: white;
-    padding: 8px 16px;
+    padding: 10px 20px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    margin-top: 10px;
     transition: background-color 0.3s ease;
 }
 
 .details-button:hover {
-    background-color: #2980b9;
+    background-color: #45a049;
 }
 
 .modal {

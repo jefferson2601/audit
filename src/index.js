@@ -249,12 +249,15 @@ function createVulnerabilityCard(vulnerability) {
         <p class="description">${vulnerability.description}</p>
         <p class="impact"><strong>Impacto:</strong> ${vulnerability.impact}</p>
         <p class="recommendation"><strong>Recomendação:</strong> ${vulnerability.recommendation}</p>
-        <button class="details-button">Ver Detalhes</button>
+        <button class="details-button" data-vulnerability="${vulnerability.name}">Ver Detalhes</button>
     `;
 
     // Adicionar event listener para o botão de detalhes
     const detailsButton = card.querySelector('.details-button');
-    detailsButton.addEventListener('click', () => showVulnerabilityDetails(vulnerability.name));
+    detailsButton.addEventListener('click', () => {
+        const vulnerabilityName = detailsButton.getAttribute('data-vulnerability');
+        showVulnerabilityDetails(vulnerabilityName);
+    });
     
     return card;
 }
