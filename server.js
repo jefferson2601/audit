@@ -2,8 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// Middleware
-app.use(cors());
+// Configuração do CORS para permitir requisições do frontend
+app.use(cors({
+    origin: ['https://jefferson2601.github.io', 'http://localhost:3000'],
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Middleware para logging
