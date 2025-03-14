@@ -43,7 +43,10 @@ function analyzeVulnerabilities(sourceCode) {
             func.includes('withdraw') || 
             func.includes('transfer') || 
             func.includes('mint') || 
-            func.includes('burn')
+            func.includes('burn') ||
+            func.includes('pause') ||
+            func.includes('unpause') ||
+            func.includes('upgrade')
         );
         
         if (criticalFunctions.length > 0) {
@@ -90,6 +93,91 @@ function analyzeVulnerabilities(sourceCode) {
                 description: 'Dependência de timestamp detectada',
                 impact: 'Risco de manipulação de resultados',
                 recommendation: 'Evitar uso de block.timestamp para operações críticas'
+            });
+        }
+    }
+
+    // Verificar Unchecked External Calls
+    const uncheckedCallPattern = /\.call\.value\([^)]*\)\s*\(\s*["']\s*["']\s*\)/g;
+    if (uncheckedCallPattern.test(sourceCode)) {
+        vulnerabilities.push({
+            name: 'Unchecked External Call',
+            severity: 'high',
+            description: 'Chamadas externas sem verificação de retorno',
+            impact: 'Risco de falha silenciosa de operações críticas',
+            recommendation: 'Verificar o retorno de chamadas externas e implementar mecanismos de fallback'
+        });
+    }
+
+    // Verificar Delegatecall Injection
+    if (sourceCode.includes('delegatecall')) {
+        vulnerabilities.push({
+            name: 'Delegatecall Injection',
+            severity: 'high',
+            description: 'Uso de delegatecall detectado',
+            impact: 'Risco de execução de código malicioso',
+            recommendation: 'Evitar uso de delegatecall ou implementar controles rigorosos'
+        });
+    }
+
+    // Verificar Denial of Service
+    const loopPattern = /for\s*\([^)]*\)\s*{[\s\S]*?}/g;
+    if (loopPattern.test(sourceCode)) {
+        vulnerabilities.push({
+            name: 'Denial of Service',
+            severity: 'medium',
+            description: 'Possível vulnerabilidade de negação de serviço',
+            impact: 'Risco de bloqueio de operações devido a loops infinitos ou gas insuficiente',
+            recommendation: 'Implementar limites de iteração e mecanismos de pagamento de gas'
+        });
+    }
+
+    // Verificar Random Number Generation
+    if (sourceCode.includes('blockhash') || sourceCode.includes('keccak256')) {
+        const randomPattern = /keccak256\([^)]*\)/g;
+        if (randomPattern.test(sourceCode)) {
+            vulnerabilities.push({
+                name: 'Weak Random Number Generation',
+                severity: 'medium',
+                description: 'Possível geração fraca de números aleatórios',
+                impact: 'Risco de previsibilidade de valores aleatórios',
+                recommendation: 'Usar VRF (Verifiable Random Function) ou oráculos externos'
+            });
+        }
+    }
+
+    // Verificar Gas Limit Issues
+    if (sourceCode.includes('transfer(') || sourceCode.includes('send(')) {
+        vulnerabilities.push({
+            name: 'Gas Limit Issues',
+            severity: 'medium',
+            description: 'Possíveis problemas com limite de gas',
+            impact: 'Risco de falha em transferências de ETH',
+            recommendation: 'Usar call em vez de transfer/send ou implementar mecanismos de retry'
+        });
+    }
+
+    // Verificar Signature Replay
+    if (sourceCode.includes('ecrecover')) {
+        vulnerabilities.push({
+            name: 'Signature Replay',
+            severity: 'high',
+            description: 'Possível vulnerabilidade de replay de assinatura',
+            impact: 'Risco de reutilização de assinaturas',
+            recommendation: 'Implementar nonce ou timestamp nas assinaturas'
+        });
+    }
+
+    // Verificar Unprotected Initialization
+    if (sourceCode.includes('initialize(') || sourceCode.includes('init(')) {
+        const initPattern = /function\s+initialize\s*\([^)]*\)\s*(?:public|external)/g;
+        if (initPattern.test(sourceCode)) {
+            vulnerabilities.push({
+                name: 'Unprotected Initialization',
+                severity: 'high',
+                description: 'Função de inicialização sem proteção',
+                impact: 'Risco de reinicialização do contrato',
+                recommendation: 'Implementar controle de acesso e verificações de estado'
             });
         }
     }
