@@ -5,7 +5,7 @@ const statusMessage = document.getElementById('statusMessage');
 const resultsContainer = document.getElementById('resultsContainer');
 
 // Configuração da API
-const API_BASE_URL = 'https://cors-anywhere.herokuapp.com/https://smart-contract-auditor-backend.onrender.com';
+const API_BASE_URL = 'https://smart-contract-auditor.vercel.app';
 
 // Variáveis para controle de tempo
 let startTime;
@@ -300,8 +300,7 @@ async function fetchContractDetails(address) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Origin': 'https://jefferson2601.github.io'
+                'Accept': 'application/json'
             },
             body: JSON.stringify({ address })
         });
@@ -380,8 +379,7 @@ async function analyzeContract(address) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Origin': 'https://jefferson2601.github.io'
+                'Accept': 'application/json'
             },
             body: JSON.stringify({ 
                 address,
