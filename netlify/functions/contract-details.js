@@ -50,7 +50,6 @@ async function getContractSourceCode(address) {
 }
 
 exports.handler = async function(event, context) {
-    // Configurar CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -58,12 +57,8 @@ exports.handler = async function(event, context) {
         'Access-Control-Allow-Credentials': true
     };
 
-    // Handle OPTIONS request
     if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers
-        };
+        return { statusCode: 200, headers };
     }
 
     try {
@@ -77,37 +72,55 @@ exports.handler = async function(event, context) {
             };
         }
 
-        // Verificar se a chave API está disponível
         if (!process.env.ETHERSCAN_API_KEY) {
             throw new Error('ETHERSCAN_API_KEY não configurada');
         }
 
-        // Configurar provider do Etherscan
-        const provider = new ethers.providers.EtherscanProvider('mainnet', process.env.ETHERSCAN_API_KEY);
+        const API_KEY = process.env.ETHERSCAN_API_KEY;
+        const BASE_URL = 'https://api.etherscan.io/api';
 
         // Buscar informações do contrato
-        const code = await provider.getCode(address);
-        const balance = await provider.getBalance(address);
-        const network = await provider.getNetwork();
-        const transactionCount = await provider.getTransactionCount(address);
+        const contractInfoUrl = `${BASE_URL}?module=contract&action=getsourcecode&address=${address}&apikey=${API_KEY}`;
+        const contractInfoResponse = await fetch(contractInfoUrl);
+        const contractInfo = await contractInfoResponse.json();
 
-        // Formatar o saldo em ETH
+        // Buscar informações de criação
+        const creationInfoUrl = `${BASE_URL}?module=contract&action=getcontractcreation&contractaddresses=${address}&apikey=${API_KEY}`;
+        const creationInfoResponse = await fetch(creationInfoUrl);
+        const creationInfo = await creationInfoResponse.json();
+
+        // Buscar informações de transações
+        const txInfoUrl = `${BASE_URL}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=asc&apikey=${API_KEY}`;
+        const txInfoResponse = await fetch(txInfoUrl);
+        const txInfo = await txInfoResponse.json();
+
+        // Configurar provider do Etherscan
+        const provider = new ethers.providers.EtherscanProvider('mainnet', API_KEY);
+        const balance = await provider.getBalance(address);
         const balanceInEth = ethers.utils.formatEther(balance);
 
-        // Buscar informações adicionais do Etherscan API
-        const etherscanUrl = `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.ETHERSCAN_API_KEY}`;
-        const response = await fetch(etherscanUrl);
-        const data = await response.json();
-
-        let creationDate = 'Desconhecida';
-        let compilerVersion = 'Desconhecida';
         let name = 'Desconhecido';
+        let compilerVersion = 'Desconhecida';
+        let creationDate = 'Desconhecida';
+        let network = 'Ethereum Mainnet';
+        let transactionCount = '0';
 
-        if (data.status === '1' && data.result && data.result[0]) {
-            const contractInfo = data.result[0];
-            creationDate = new Date(parseInt(contractInfo.TimeStamp) * 1000).toLocaleDateString();
-            compilerVersion = contractInfo.CompilerVersion || 'Desconhecida';
-            name = contractInfo.ContractName || 'Desconhecido';
+        // Processar informações do contrato
+        if (contractInfo.status === '1' && contractInfo.result && contractInfo.result[0]) {
+            const info = contractInfo.result[0];
+            name = info.ContractName || 'Desconhecido';
+            compilerVersion = info.CompilerVersion || 'Desconhecida';
+        }
+
+        // Processar informações de criação
+        if (creationInfo.status === '1' && creationInfo.result && creationInfo.result[0]) {
+            const info = creationInfo.result[0];
+            creationDate = new Date(parseInt(info.timestamp) * 1000).toLocaleDateString('pt-BR');
+        }
+
+        // Processar informações de transações
+        if (txInfo.status === '1' && txInfo.result) {
+            transactionCount = txInfo.result.length.toString();
         }
 
         return {
@@ -116,7 +129,7 @@ exports.handler = async function(event, context) {
             body: JSON.stringify({
                 name,
                 compilerVersion,
-                network: network.name,
+                network,
                 creationDate,
                 balance: balanceInEth,
                 transactionCount
