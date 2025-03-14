@@ -77,6 +77,11 @@ exports.handler = async function(event, context) {
             };
         }
 
+        // Verificar se a chave API está disponível
+        if (!process.env.ETHERSCAN_API_KEY) {
+            throw new Error('ETHERSCAN_API_KEY não configurada');
+        }
+
         // Configurar provider do Etherscan
         const provider = new ethers.providers.EtherscanProvider('mainnet', process.env.ETHERSCAN_API_KEY);
 
@@ -90,7 +95,7 @@ exports.handler = async function(event, context) {
         const balanceInEth = ethers.utils.formatEther(balance);
 
         // Buscar informações adicionais do Etherscan API
-        const etherscanUrl = `https://api.etherscan.io/api?module=contract&action=getcontractcreation&contractaddresses=${address}&apikey=${process.env.ETHERSCAN_API_KEY}`;
+        const etherscanUrl = `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.ETHERSCAN_API_KEY}`;
         const response = await fetch(etherscanUrl);
         const data = await response.json();
 
@@ -100,9 +105,9 @@ exports.handler = async function(event, context) {
 
         if (data.status === '1' && data.result && data.result[0]) {
             const contractInfo = data.result[0];
-            creationDate = new Date(contractInfo.timestamp * 1000).toISOString();
-            compilerVersion = contractInfo.compilerVersion || 'Desconhecida';
-            name = contractInfo.contractName || 'Desconhecido';
+            creationDate = new Date(parseInt(contractInfo.TimeStamp) * 1000).toLocaleDateString();
+            compilerVersion = contractInfo.CompilerVersion || 'Desconhecida';
+            name = contractInfo.ContractName || 'Desconhecido';
         }
 
         return {
@@ -122,7 +127,10 @@ exports.handler = async function(event, context) {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Erro ao buscar detalhes do contrato' })
+            body: JSON.stringify({ 
+                error: 'Erro ao buscar detalhes do contrato',
+                details: error.message 
+            })
         };
     }
 }; 
