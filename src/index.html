@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditor de Smart Contracts</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Auditor de Smart Contracts</h1>
+            <p>Análise de vulnerabilidades em contratos inteligentes</p>
+            <div class="img">
+                <img src="assets/img.png" alt="Logo" width="200">
+            </div>
+        </header>
+
+        <section class="input-section">
+            <div class="input-group">
+                <input type="text" id="contractInput" placeholder="Digite o endereço do contrato (0x...)">
+                <button id="analyzeButton">Analisar</button>
+            </div>
+        </section>
+
+        <section class="examples-section">
+            <h2>Exemplos de Contratos</h2>
+            <div class="example-buttons">
+                <button class="example-button" data-address="0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</button>
+                <button class="example-button" data-address="0x2260fac5e5542a773aa44fbcfedf7c193bc2c599">WBTC</button>
+                <button class="example-button" data-address="0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D">Uniswap V2 Router</button>
+            </div>
+        </section>
+
+        <section class="status-section">
+            <div id="statusMessage" class="status-message"></div>
+        </section>
+
+        <section class="results-section">
+            <div id="resultsContainer" class="results-container"></div>
+        </section>
+
+        <div id="vulnerabilityModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2></h2>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

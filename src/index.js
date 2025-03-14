@@ -495,7 +495,7 @@ function getVulnerabilityPattern(vulnerabilityName) {
 }
 
 // Função para alternar a visibilidade do código-fonte
-function toggleSourceCode() {
+window.toggleSourceCode = function() {
     const container = document.getElementById('sourceCodeContainer');
     if (container) {
         container.style.display = container.style.display === 'none' ? 'block' : 'none';

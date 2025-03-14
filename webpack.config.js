@@ -7,7 +7,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
-    publicPath: '/'
+    clean: true
   },
   module: {
     rules: [
@@ -23,17 +23,21 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './index.html'
+      template: './src/index.html',
+      filename: 'index.html'
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'img.png', to: 'img.png' },
-        { from: 'src/styles.css', to: 'styles.css' }
+        {
+          from: 'src/assets',
+          to: 'assets',
+          noErrorOnMissing: true
+        }
       ]
     })
   ],
   devServer: {
-    historyApiFallback: true,
+    static: './dist',
     hot: true
   }
 }; 
