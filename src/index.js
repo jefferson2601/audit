@@ -353,50 +353,12 @@ async function showVulnerabilityDetails(vulnerabilityName) {
     const vulnerability = vulnerabilityDatabase[vulnerabilityName];
     if (!vulnerability) return;
 
-    const modal = document.querySelector('.modal') || createModal();
+    const modal = document.getElementById('vulnerabilityModal');
     const modalTitle = modal.querySelector('.modal-header h2');
     const modalBody = modal.querySelector('.modal-body');
+    const closeButton = modal.querySelector('.close');
 
     modalTitle.textContent = vulnerabilityName;
-    modalBody.innerHTML = `
-        <div class="modal-section">
-            <h3>Descrição</h3>
-            <p>${vulnerability.description}</p>
-        </div>
-        <div class="modal-section">
-            <h3>Impacto</h3>
-            <p>${vulnerability.impact}</p>
-        </div>
-        <div class="modal-section">
-            <h3>Recomendação</h3>
-            <p>${vulnerability.recommendation}</p>
-        </div>
-        <div class="modal-section">
-            <h3>Detalhes Técnicos</h3>
-            <p>${vulnerability.technicalDetails}</p>
-        </div>
-        <div class="modal-section">
-            <h3>Exemplo de Código</h3>
-            <pre class="code-example">${vulnerability.codeExample}</pre>
-        </div>
-        <div class="reference-links">
-            <h3>Referências</h3>
-            <ul>
-                ${vulnerability.references.map(ref => `
-                    <li><a href="${ref.url}" target="_blank">${ref.title}</a></li>
-                `).join('')}
-            </ul>
-        </div>
-    `;
-
-    modal.style.display = 'block';
-
-    // Event listeners para fechar o modal
-    const closeButton = modal.querySelector('.close-button');
-    closeButton.onclick = () => modal.style.display = 'none';
-    modal.onclick = (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-    };
 
     // Se tiver um endereço de contrato, buscar o código-fonte
     let sourceCodeSection = '';
@@ -411,12 +373,14 @@ async function showVulnerabilityDetails(vulnerabilityName) {
                 const hasVulnerability = vulnPattern && sourceCode.sourceCode.match(vulnPattern);
                 
                 sourceCodeSection = `
-                    <h3>Análise do Código do Contrato</h3>
-                    <div class="source-code-analysis">
-                        <p><strong>Status:</strong> ${hasVulnerability ? '⚠️ Vulnerabilidade Potencial Detectada' : '✅ Padrão Não Encontrado'}</p>
-                        <button onclick="toggleSourceCode()" class="source-code-button">Ver Código-fonte</button>
-                        <div id="sourceCodeContainer" style="display: none;">
-                            <pre><code class="language-solidity">${escapeHtml(sourceCode.sourceCode)}</code></pre>
+                    <div class="source-code-section">
+                        <h3>Análise do Código do Contrato</h3>
+                        <div class="source-code-analysis">
+                            <p><strong>Status:</strong> ${hasVulnerability ? '⚠️ Vulnerabilidade Potencial Detectada' : '✅ Padrão Não Encontrado'}</p>
+                            <button onclick="toggleSourceCode()" class="source-code-button">Ver Código-fonte</button>
+                            <div id="sourceCodeContainer" style="display: none;">
+                                <pre><code class="language-solidity">${escapeHtml(sourceCode.sourceCode)}</code></pre>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -428,29 +392,59 @@ async function showVulnerabilityDetails(vulnerabilityName) {
 
     modalBody.innerHTML = `
         <div class="vulnerability-details">
-            <h3>Descrição</h3>
-            <p>${vulnerability.description}</p>
+            <div class="modal-section">
+                <h3>Descrição</h3>
+                <p>${vulnerability.description}</p>
+            </div>
             
-            <h3>Impacto</h3>
-            <p>${vulnerability.impact}</p>
+            <div class="modal-section">
+                <h3>Impacto</h3>
+                <p>${vulnerability.impact}</p>
+            </div>
             
-            <h3>Recomendações</h3>
-            <p>${vulnerability.recommendation}</p>
+            <div class="modal-section">
+                <h3>Recomendações</h3>
+                <p>${vulnerability.recommendation}</p>
+            </div>
             
-            <h3>Detalhes Técnicos</h3>
-            <p>${vulnerability.technicalDetails}</p>
+            <div class="modal-section">
+                <h3>Detalhes Técnicos</h3>
+                <p>${vulnerability.technicalDetails}</p>
+            </div>
             
-            <h3>Exemplo de Código Vulnerável</h3>
-            <pre><code class="language-solidity">${vulnerability.codeExample}</code></pre>
+            <div class="modal-section">
+                <h3>Exemplo de Código Vulnerável</h3>
+                <pre class="code-example"><code>${vulnerability.codeExample}</code></pre>
+            </div>
             
             ${sourceCodeSection}
             
-            <h3>Referências</h3>
-            <ul>
-                ${vulnerability.references.map(ref => `<li><a href="${ref.url}" target="_blank">${ref.title}</a></li>`).join('')}
-            </ul>
+            <div class="reference-links">
+                <h3>Referências</h3>
+                <ul>
+                    ${vulnerability.references.map(ref => `
+                        <li><a href="${ref.url}" target="_blank">${ref.title}</a></li>
+                    `).join('')}
+                </ul>
+            </div>
         </div>
     `;
+
+    modal.style.display = 'block';
+
+    // Event listeners para fechar o modal
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    closeButton.onclick = closeModal;
+    
+    // Fechar ao clicar fora do modal
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
 }
 
 // Função para buscar o código-fonte do contrato
