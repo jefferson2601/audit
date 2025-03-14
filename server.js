@@ -2,11 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-// Configuração do CORS para permitir requisições do frontend
+// Configuração do CORS para permitir todas as origens (temporário para debug)
 app.use(cors({
-    origin: ['https://jefferson2601.github.io', 'http://localhost:3000'],
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }));
 
