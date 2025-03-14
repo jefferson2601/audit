@@ -349,7 +349,7 @@ function createModal() {
 }
 
 // Função para mostrar o modal com os detalhes
-function showVulnerabilityDetails(vulnerabilityName) {
+async function showVulnerabilityDetails(vulnerabilityName) {
     const vulnerability = vulnerabilityDatabase[vulnerabilityName];
     if (!vulnerability) return;
 
@@ -397,6 +397,119 @@ function showVulnerabilityDetails(vulnerabilityName) {
     modal.onclick = (e) => {
         if (e.target === modal) modal.style.display = 'none';
     };
+
+    // Se tiver um endereço de contrato, buscar o código-fonte
+    let sourceCodeSection = '';
+    const contractAddress = document.getElementById('contractInput').value;
+    
+    if (contractAddress) {
+        try {
+            const sourceCode = await fetchContractSource(contractAddress);
+            if (sourceCode.isVerified) {
+                // Procurar por padrões relacionados à vulnerabilidade no código
+                const vulnPattern = getVulnerabilityPattern(vulnerabilityName);
+                const hasVulnerability = vulnPattern && sourceCode.sourceCode.match(vulnPattern);
+                
+                sourceCodeSection = `
+                    <h3>Análise do Código do Contrato</h3>
+                    <div class="source-code-analysis">
+                        <p><strong>Status:</strong> ${hasVulnerability ? '⚠️ Vulnerabilidade Potencial Detectada' : '✅ Padrão Não Encontrado'}</p>
+                        <button onclick="toggleSourceCode()" class="source-code-button">Ver Código-fonte</button>
+                        <div id="sourceCodeContainer" style="display: none;">
+                            <pre><code class="language-solidity">${escapeHtml(sourceCode.sourceCode)}</code></pre>
+                        </div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Erro ao buscar código-fonte:', error);
+        }
+    }
+
+    modalBody.innerHTML = `
+        <div class="vulnerability-details">
+            <h3>Descrição</h3>
+            <p>${vulnerability.description}</p>
+            
+            <h3>Impacto</h3>
+            <p>${vulnerability.impact}</p>
+            
+            <h3>Recomendações</h3>
+            <p>${vulnerability.recommendation}</p>
+            
+            <h3>Detalhes Técnicos</h3>
+            <p>${vulnerability.technicalDetails}</p>
+            
+            <h3>Exemplo de Código Vulnerável</h3>
+            <pre><code class="language-solidity">${vulnerability.codeExample}</code></pre>
+            
+            ${sourceCodeSection}
+            
+            <h3>Referências</h3>
+            <ul>
+                ${vulnerability.references.map(ref => `<li><a href="${ref.url}" target="_blank">${ref.title}</a></li>`).join('')}
+            </ul>
+        </div>
+    `;
+}
+
+// Função para buscar o código-fonte do contrato
+async function fetchContractSource(address) {
+    try {
+        const response = await fetch('/.netlify/functions/contract-source', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ address })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao buscar código-fonte');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erro:', error);
+        throw error;
+    }
+}
+
+// Função para obter o padrão de vulnerabilidade
+function getVulnerabilityPattern(vulnerabilityName) {
+    const patterns = {
+        'Reentrancy': /(\.(call|transfer|send)\{.*value:.*\}|\.call\{.*\}.*\(.*\).*)/i,
+        'Integer Overflow': /([\+\-\*](?!=)|=[\+\-\*])/,
+        'Access Control': /onlyOwner|require\s*\(\s*msg\.sender\s*==\s*owner\s*\)/i,
+        'Unchecked External Call': /\.call\{.*\}\(.*\)/i,
+        'Timestamp Dependence': /block\.timestamp|now/i,
+        'Front-Running': /tx\.gasprice|block\.number/i,
+        'Denial of Service': /require\s*\(\s*msg\.value\s*[>=]+/i,
+        'Weak Random': /block\.timestamp|blockhash|block\.difficulty/i,
+        'Delegatecall Injection': /\.delegatecall/i,
+        'Signature Replay': /ecrecover|ECDSA\.recover/i,
+        'Unprotected Initialization': /initialize|init(?!ialize)/i
+    };
+    
+    return patterns[vulnerabilityName];
+}
+
+// Função para alternar a visibilidade do código-fonte
+function toggleSourceCode() {
+    const container = document.getElementById('sourceCodeContainer');
+    if (container) {
+        container.style.display = container.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Função para escapar HTML
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // Função para criar cartão de vulnerabilidade
