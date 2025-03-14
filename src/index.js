@@ -5,7 +5,7 @@ const statusMessage = document.getElementById('statusMessage');
 const resultsContainer = document.getElementById('resultsContainer');
 
 // Configuração da API
-const API_BASE_URL = 'https://smart-contract-auditor.vercel.app';
+const API_BASE_URL = '/.netlify/functions';
 
 // Variáveis para controle de tempo
 let startTime;
