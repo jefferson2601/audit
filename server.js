@@ -15,6 +15,8 @@ app.use(express.json());
 // Middleware para logging
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
     next();
 });
 
@@ -153,6 +155,20 @@ app.post('/contract-details', async (req, res) => {
 // Rota de teste
 app.get('/test', (req, res) => {
     res.json({ message: 'Servidor está funcionando!' });
+});
+
+// Rota raiz
+app.get('/', (req, res) => {
+    console.log('Rota raiz acessada');
+    res.json({ 
+        status: 'online',
+        message: 'Servidor está funcionando!',
+        endpoints: {
+            test: '/test',
+            analyze: '/analyze',
+            contractDetails: '/contract-details'
+        }
+    });
 });
 
 // Tratamento de erros
