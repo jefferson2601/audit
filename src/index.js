@@ -167,6 +167,167 @@ function random() public returns (uint) {
                 url: 'https://docs.soliditylang.org/en/v0.8.0/units-and-global-variables.html#block-and-transaction-properties'
             }
         ]
+    },
+    'Delegatecall Injection': {
+        description: 'Vulnerabilidade que ocorre quando um contrato usa delegatecall de forma insegura, permitindo que um contrato malicioso execute código no contexto do contrato alvo.',
+        impact: 'Execução de código malicioso, manipulação de estado do contrato, roubo de fundos.',
+        recommendation: 'Evitar uso de delegatecall quando possível, implementar verificações rigorosas de endereços, usar bibliotecas seguras.',
+        technicalDetails: 'O delegatecall executa código de outro contrato no contexto do contrato atual, incluindo acesso ao storage e balance.',
+        codeExample: `// Vulnerável
+function execute(address target, bytes memory data) {
+    target.delegatecall(data);
+}
+
+// Seguro
+function execute(address target, bytes memory data) {
+    require(target != address(0), "Invalid target");
+    require(target.code.length > 0, "Target is not a contract");
+    (bool success, ) = target.delegatecall(data);
+    require(success, "Delegatecall failed");
+}`,
+        references: [
+            {
+                title: 'Solidity Documentation - Delegatecall',
+                url: 'https://docs.soliditylang.org/en/v0.8.0/introduction-to-smart-contracts.html#delegatecall-callcode-and-libraries'
+            }
+        ]
+    },
+    'Denial of Service': {
+        description: 'Vulnerabilidade que permite que um atacante cause falha ou interrupção do serviço do contrato.',
+        impact: 'Interrupção do serviço, perda de funcionalidade, prejuízos financeiros.',
+        recommendation: 'Implementar limites de gas, evitar loops infinitos, usar padrões de pull payment.',
+        technicalDetails: 'Pode ocorrer através de loops infinitos, operações que excedem o limite de gas, ou bloqueio de recursos.',
+        codeExample: `// Vulnerável
+function distribute() {
+    for(uint i = 0; i < users.length; i++) {
+        users[i].transfer(amount);
+    }
+}
+
+// Seguro
+function distribute() {
+    uint256 i = 0;
+    while(i < users.length && gasleft() > 50000) {
+        users[i].transfer(amount);
+        i++;
+    }
+}`,
+        references: [
+            {
+                title: 'Consensys Denial of Service',
+                url: 'https://consensys.github.io/smart-contract-best-practices/attacks/denial-of-service/'
+            }
+        ]
+    },
+    'Weak Random Number Generation': {
+        description: 'Vulnerabilidade que ocorre quando o contrato usa métodos previsíveis para gerar números aleatórios.',
+        impact: 'Previsibilidade de resultados, manipulação de jogos de azar, roubo de fundos.',
+        recommendation: 'Usar VRF (Verifiable Random Function), implementar commit-reveal, usar fontes externas de entropia.',
+        technicalDetails: 'Métodos como block.timestamp, blockhash, ou keccak256 são previsíveis e não devem ser usados para aleatoriedade.',
+        codeExample: `// Vulnerável
+function random() public view returns (uint) {
+    return uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty)));
+}
+
+// Seguro (usando VRF)
+function random() public returns (uint) {
+    bytes32 requestId = COORDINATOR.requestRandomWords(
+        keyHash,
+        subscriptionId,
+        REQUEST_CONFIRMATIONS,
+        CALLBACK_GAS_LIMIT,
+        NUM_WORDS
+    );
+}`,
+        references: [
+            {
+                title: 'Chainlink VRF',
+                url: 'https://docs.chain.link/docs/chainlink-vrf/'
+            }
+        ]
+    },
+    'Gas Limit Issues': {
+        description: 'Vulnerabilidade relacionada a operações que podem exceder o limite de gas ou causar problemas de custo.',
+        impact: 'Falha de transações, custos excessivos, comportamento inesperado.',
+        recommendation: 'Implementar limites de gas, otimizar operações, usar padrões de pull payment.',
+        technicalDetails: 'Operações que consomem muito gas podem falhar ou causar problemas de custo.',
+        codeExample: `// Vulnerável
+function processArray(uint[] memory data) {
+    for(uint i = 0; i < data.length; i++) {
+        // Operações complexas
+    }
+}
+
+// Seguro
+function processArray(uint[] memory data) {
+    uint256 i = 0;
+    while(i < data.length && gasleft() > 50000) {
+        // Operações complexas
+        i++;
+    }
+}`,
+        references: [
+            {
+                title: 'Solidity Gas Optimization',
+                url: 'https://docs.soliditylang.org/en/v0.8.0/gas-optimizations.html'
+            }
+        ]
+    },
+    'Signature Replay': {
+        description: 'Vulnerabilidade que permite que uma assinatura válida seja reutilizada em diferentes contextos.',
+        impact: 'Execução não autorizada de operações, roubo de fundos, manipulação de estado.',
+        recommendation: 'Implementar nonce único para cada assinatura, verificar o contexto da assinatura, usar padrões seguros de assinatura.',
+        technicalDetails: 'Assinaturas podem ser reutilizadas se não houver um mecanismo para invalidá-las após o uso.',
+        codeExample: `// Vulnerável
+function transferWithSignature(address to, uint amount, bytes memory signature) {
+    bytes32 hash = keccak256(abi.encodePacked(to, amount));
+    address signer = ecrecover(hash, v, r, s);
+    require(signer == owner);
+    transfer(to, amount);
+}
+
+// Seguro
+mapping(bytes32 => bool) public usedSignatures;
+
+function transferWithSignature(address to, uint amount, bytes memory signature, uint nonce) {
+    bytes32 hash = keccak256(abi.encodePacked(to, amount, nonce));
+    require(!usedSignatures[hash], "Signature already used");
+    address signer = ecrecover(hash, v, r, s);
+    require(signer == owner);
+    usedSignatures[hash] = true;
+    transfer(to, amount);
+}`,
+        references: [
+            {
+                title: 'OpenZeppelin ECDSA',
+                url: 'https://docs.openzeppelin.com/contracts/4.x/api/utils#ECDSA'
+            }
+        ]
+    },
+    'Unprotected Initialization': {
+        description: 'Vulnerabilidade que ocorre quando funções de inicialização podem ser chamadas múltiplas vezes ou por usuários não autorizados.',
+        impact: 'Manipulação de estado inicial, execução não autorizada, comportamento inesperado.',
+        recommendation: 'Implementar modificadores de inicialização única, usar padrões de proxy, verificar permissões.',
+        technicalDetails: 'Funções de inicialização devem ser protegidas contra chamadas múltiplas e não autorizadas.',
+        codeExample: `// Vulnerável
+function initialize() {
+    owner = msg.sender;
+}
+
+// Seguro
+bool private initialized;
+
+function initialize() {
+    require(!initialized, "Already initialized");
+    owner = msg.sender;
+    initialized = true;
+}`,
+        references: [
+            {
+                title: 'OpenZeppelin Initializable',
+                url: 'https://docs.openzeppelin.com/contracts/4.x/api/proxy#Initializable'
+            }
+        ]
     }
 };
 
@@ -315,7 +476,16 @@ async function fetchContractDetails(address) {
         }
 
         const data = await response.json();
-        return data;
+        
+        // Formatar os dados recebidos
+        return {
+            name: data.name || 'Desconhecido',
+            compilerVersion: data.compilerVersion || 'Desconhecida',
+            network: data.network || 'Desconhecida',
+            creationDate: data.creationDate ? new Date(data.creationDate).toLocaleDateString() : 'Desconhecida',
+            balance: data.balance ? `${data.balance} ETH` : '0 ETH',
+            transactionCount: data.transactionCount || '0'
+        };
     } catch (error) {
         console.error('Erro ao buscar detalhes:', error);
         throw error;

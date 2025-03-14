@@ -221,7 +221,7 @@ button:disabled {
     margin: 20px 0;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #2c3e50;
     transition: transform 0.2s ease;
 }
 
@@ -230,18 +230,15 @@ button:disabled {
 }
 
 .vulnerability-card.high {
-    background-color: #ffebee;
-    border-left: 4px solid #f44336;
+    border-left: 4px solid #e74c3c;
 }
 
 .vulnerability-card.medium {
-    background-color: #fff3e0;
-    border-left: 4px solid #ff9800;
+    border-left: 4px solid #f1c40f;
 }
 
 .vulnerability-card.low {
-    background-color: #e8f5e9;
-    border-left: 4px solid #4caf50;
+    border-left: 4px solid #2ecc71;
 }
 
 .vulnerability-card h3 {
@@ -286,6 +283,7 @@ button:disabled {
     margin-bottom: 5px;
     padding-left: 15px;
     position: relative;
+    color: whitesmoke;
 }
 
 .vulnerability-card .impact::before,
