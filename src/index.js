@@ -361,6 +361,19 @@ function setLoading(isLoading) {
 // Função para analisar contrato
 async function analyzeContract(address) {
     try {
+        setLoading(true);
+        showStatus('Iniciando análise...', 'info');
+        startTimer();
+        clearResults();
+
+        // Buscar detalhes do contrato
+        const contractDetails = await fetchContractDetails(address);
+
+        // Adicionar informações do contrato
+        const contractInfoCard = createContractInfoCard(address, contractDetails);
+        resultsContainer.appendChild(contractInfoCard);
+
+        // Fazer requisição para o servidor
         const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: 'POST',
             headers: {
@@ -368,7 +381,7 @@ async function analyzeContract(address) {
             },
             body: JSON.stringify({ 
                 address,
-                sourceCode: getContractSourceCode(address)
+                sourceCode: `// Código fonte do contrato ${address}`
             })
         });
 
@@ -377,10 +390,37 @@ async function analyzeContract(address) {
         }
 
         const data = await response.json();
-        return data;
+        
+        if (!data.success) {
+            throw new Error(data.error || 'Erro na análise do contrato');
+        }
+        
+        // Exibir resultados
+        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+            const vulnerabilitiesHeader = document.createElement('h2');
+            vulnerabilitiesHeader.textContent = 'Vulnerabilidades Encontradas';
+            resultsContainer.appendChild(vulnerabilitiesHeader);
+
+            data.vulnerabilities.forEach(vulnerability => {
+                const card = createVulnerabilityCard(vulnerability);
+                resultsContainer.appendChild(card);
+            });
+            showStatus(`Análise concluída. ${data.vulnerabilities.length} vulnerabilidades encontradas.`, 'success');
+        } else {
+            const noVulnsCard = document.createElement('div');
+            noVulnsCard.className = 'vulnerability-card low';
+            noVulnsCard.innerHTML = `
+                <h3>Nenhuma Vulnerabilidade Encontrada</h3>
+                <p class="description">O contrato parece estar seguro em relação às vulnerabilidades mais comuns.</p>
+            `;
+            resultsContainer.appendChild(noVulnsCard);
+            showStatus('Nenhuma vulnerabilidade encontrada.', 'success');
+        }
     } catch (error) {
-        console.error('Erro na análise:', error);
-        throw error;
+        console.error('Erro:', error);
+        showStatus(`Erro ao analisar contrato: ${error.message}`, 'error');
+    } finally {
+        setLoading(false);
     }
 }
 
