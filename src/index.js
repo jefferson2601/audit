@@ -1,3 +1,5 @@
+import './styles.css';
+
 // Elementos do DOM
 const contractInput = document.getElementById('contractInput');
 const analyzeButton = document.getElementById('analyzeButton');
